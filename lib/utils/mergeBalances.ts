@@ -9,8 +9,10 @@ export function mergeBalancesWithCurrencies(
   }
 
   const currencyMap = Object.fromEntries(currencies.map((c) => [c.id, c]))
-
-  const grouped: Record<string, EnrichedBalanceGroup> = {}
+  const grouped: Record<
+    string,
+    Omit<EnrichedBalanceGroup, 'total'> & { total: number }
+  > = {}
 
   for (const balance of balances) {
     const currency = currencyMap[balance.currency_id]
@@ -20,7 +22,7 @@ export function mergeBalancesWithCurrencies(
 
     if (!grouped[balance.currency_id]) {
       grouped[balance.currency_id] = {
-        currency_id: balance.currency_id,
+        currency_id: balance.currency_id.toString(),
         code: currency.code,
         symbol: currency.symbol,
         balances: [],
@@ -29,8 +31,13 @@ export function mergeBalancesWithCurrencies(
     }
 
     grouped[balance.currency_id].balances.push(balance)
-    grouped[balance.currency_id].total += Number(balance.amount)
+    grouped[balance.currency_id].total += Math.round(
+      Number(balance.amount) * 100,
+    )
   }
 
-  return Object.values(grouped)
+  return Object.values(grouped).map((group) => ({
+    ...group,
+    total: Number(group.total / 100).toFixed(2),
+  }))
 }

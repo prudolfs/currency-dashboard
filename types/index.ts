@@ -12,8 +12,8 @@ export type Currency = {
 
 export type Balance = {
   id: string
-  amount: number
-  currency_id: string
+  amount: string
+  currency_id: number
 }
 
 export type EnrichedBalanceGroup = {
@@ -21,5 +21,5 @@ export type EnrichedBalanceGroup = {
   code: string
   symbol: string
   balances: Balance[]
-  total: number
+  total: string
 }

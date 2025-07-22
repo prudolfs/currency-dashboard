@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useEnrichedCurrencyData } from '@/lib/api/useEnrichedCurrencyData'
 
 export default function DashboardPage() {
@@ -19,6 +20,7 @@ export default function DashboardPage() {
             <th className="p-2">Symbol</th>
             <th className="p-2">Total Balance</th>
             <th className="p-2"># of Balances</th>
+            <th className="p-2" />
           </tr>
         </thead>
         <tbody>
@@ -26,8 +28,16 @@ export default function DashboardPage() {
             <tr key={group.currency_id} className="border-t">
               <td className="p-2">{group.code}</td>
               <td className="p-2">{group.symbol}</td>
-              <td className="p-2">{group.total.toFixed(2)}</td>
+              <td className="p-2">{group.total}</td>
               <td className="p-2">{group.balances.length}</td>
+              <td>
+                <Link
+                  href={`/balances/${group.currency_id}`}
+                  className="text-blue-500 underline"
+                >
+                  View
+                </Link>
+              </td>
             </tr>
           ))}
         </tbody>
