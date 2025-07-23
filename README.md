@@ -1,53 +1,90 @@
-# Next.js & HeroUI Template
+# 💰 Currency Dashboard
 
-This is a template for creating applications using Next.js 14 (app directory) and HeroUI (v2).
+A modern Next.js app that displays balance data per currency, featuring search, sorting, and 2FA-protected login using `next-auth`.
 
-[Try it on CodeSandbox](https://githubbox.com/heroui-inc/heroui/next-app-template)
+---
 
-## Technologies Used
+## ✨ Features
 
-- [Next.js 14](https://nextjs.org/docs/getting-started)
-- [HeroUI v2](https://heroui.com/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [Tailwind Variants](https://tailwind-variants.org)
-- [TypeScript](https://www.typescriptlang.org/)
-- [Framer Motion](https://www.framer.com/motion/)
-- [next-themes](https://github.com/pacocoursey/next-themes)
+- 🔐 Authentication with `next-auth`
+- 🔢 2FA (OTP verification) with custom API route
+- 📊 Dashboard with:
+  - Search by currency code
+  - Sort by total balance or number of balances
+- 🔎 Per-currency detail pages with balance breakdown
+- ⚙️ React Query for efficient data fetching and caching
+- 🧠 Clean file structure with `lib/`, `types/`, and dynamic routing
 
-## How to Use
+---
 
-### Use the template with create-next-app
+## 📁 File Structure
 
-To create a new project based on this template using `create-next-app`, run the following command:
-
-```bash
-npx create-next-app -e https://github.com/heroui-inc/next-app-template
+```
+/app
+  /auth
+    /signin         → login page
+    /verify-otp     → 2FA verification page
+  /balances
+    /[id]           → balance detail page
+  /dashboard        → main dashboard page
+  /api
+    [...nextauth]   → next-auth config route
+    verify-otp      → custom OTP verification
+/lib
+  /api              → API logic and data merging
+  /hooks            → custom React Query + filter/sort hooks
+/types              → shared TypeScript types
 ```
 
-### Install dependencies
+---
 
-You can use one of them `npm`, `yarn`, `pnpm`, `bun`, Example using `npm`:
+## 🧪 Tech Stack
 
-```bash
-npm install
-```
+- [Next.js 15 (App Router)](https://nextjs.org)
+- [React Query](https://tanstack.com/query/latest)
+- [NextAuth.js](https://next-auth.js.org)
+- Tailwind CSS + HeroUI
+- TypeScript
 
-### Run the development server
+---
 
-```bash
-npm run dev
-```
-
-### Setup pnpm (optional)
-
-If you are using `pnpm`, you need to add the following code to your `.npmrc` file:
+## 🚀 Getting Started
 
 ```bash
-public-hoist-pattern[]=*@heroui/*
+git clone git@github.com:prudolfs/currency-dashboard.git
+cd currency-dashboard
+pnpm install
+pnpm dev
 ```
 
-After modifying the `.npmrc` file, you need to run `pnpm install` again to ensure that the dependencies are installed correctly.
+Create a `.env.local` file:
 
-## License
+```env
+NEXTAUTH_SECRET=your-secret
+NEXTAUTH_URL=http://localhost:3000
+```
 
-Licensed under the [MIT license](https://github.com/heroui-inc/next-app-template/blob/main/LICENSE).
+---
+
+## 🔐 Authentication Flow
+
+1. `/auth/signin` – Sign in using email or credentials
+2. `/auth/verify-otp` – User enters 2FA code (via `/api/verify-otp`)
+3. Session handled by `next-auth` via `/api/auth/[...nextauth]`
+
+---
+
+## 📦 Mock API
+
+Uses [MockAPI.io](https://mockapi.io/) to fetch:
+
+- `/currencies` → `id`, `code`, `symbol`
+- `/balances`   → `id`, `amount`, `currency_id`
+
+Data is merged client-side into grouped currency records.
+
+---
+
+## 📄 License
+
+MIT
