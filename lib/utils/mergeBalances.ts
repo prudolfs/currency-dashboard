@@ -16,6 +16,7 @@ export function mergeBalancesWithCurrencies(
 
   for (const balance of balances) {
     const currency = currencyMap[balance.currency_id]
+
     if (!currency) {
       continue
     }

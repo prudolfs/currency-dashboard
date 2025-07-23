@@ -1,7 +1,9 @@
+import { useMemo } from 'react'
+
+import { mergeBalancesWithCurrencies } from '../utils/mergeBalances'
+
 import { useCurrencies } from './useCurrencies'
 import { useBalances } from './useBalances'
-import { mergeBalancesWithCurrencies } from '../utils/mergeBalances'
-import { useMemo } from 'react'
 
 export function useEnrichedCurrencyData() {
   const {

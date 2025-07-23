@@ -1,6 +1,7 @@
 'use client'
 
 import { useParams } from 'next/navigation'
+
 import { useEnrichedCurrencyData } from '@/lib/api/useEnrichedCurrencyData'
 
 export default function BalanceDetailPage() {
@@ -11,8 +12,6 @@ export default function BalanceDetailPage() {
   if (error) return <p>Error: {String(error)}</p>
 
   const currencyGroup = data.find((group) => group.currency_id === id)
-
-  console.log(currencyGroup)
 
   if (!currencyGroup) {
     return <p>Currency not found.</p>
