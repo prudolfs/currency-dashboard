@@ -30,9 +30,8 @@ export default function DashboardPage() {
     search,
     setSearch,
     sortField,
-    setSortField,
     sortOrder,
-    setSortOrder,
+    createSortHandler,
   } = useFilteredSortedBalances()
   const { data: session, primaryColor } = useUserSession()
 
@@ -49,6 +48,8 @@ export default function DashboardPage() {
 
   if (error) return <p>Something went wrong: {String(error)}</p>
 
+  const handleTotalSort = createSortHandler('total')
+  const handleCountSort = createSortHandler('count')
   const getSortIcon = (field: 'total' | 'count') => {
     if (sortField !== field) {
       return <ChevronUpDownIcon className="h-4 w-4 opacity-50" />
@@ -115,10 +116,7 @@ export default function DashboardPage() {
                     color: sortField === 'total' ? 'white' : primaryColor,
                   }}
                   variant={sortField === 'total' ? 'solid' : 'bordered'}
-                  onPress={() => {
-                    setSortField('total')
-                    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
-                  }}
+                  onPress={handleTotalSort}
                 >
                   Sort by Total
                 </Button>
@@ -133,10 +131,7 @@ export default function DashboardPage() {
                     color: sortField === 'count' ? 'white' : primaryColor,
                   }}
                   variant={sortField === 'count' ? 'solid' : 'bordered'}
-                  onPress={() => {
-                    setSortField('count')
-                    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
-                  }}
+                  onPress={handleCountSort}
                 >
                   Sort by Count
                 </Button>
@@ -165,10 +160,7 @@ export default function DashboardPage() {
                       aria-label="Sort by total balance"
                       size="sm"
                       variant="light"
-                      onPress={() => {
-                        setSortField('total')
-                        setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
-                      }}
+                      onPress={handleTotalSort}
                     >
                       {getSortIcon('total')}
                     </Button>
@@ -181,10 +173,7 @@ export default function DashboardPage() {
                       isIconOnly
                       variant="light"
                       size="sm"
-                      onPress={() => {
-                        setSortField('count')
-                        setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
-                      }}
+                      onPress={handleCountSort}
                       aria-label="Sort by balance count"
                     >
                       {getSortIcon('count')}

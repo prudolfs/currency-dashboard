@@ -11,6 +11,13 @@ export function useFilteredSortedBalances() {
   const [sortField, setSortField] = useState<SortField>('total')
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc')
 
+  const handleSort = (field: SortField) => {
+    setSortField(field)
+    setSortOrder(current => current === 'asc' ? 'desc' : 'asc')
+  }
+
+  const createSortHandler = (field: SortField) => () => handleSort(field)
+
   const filteredSortedData = useMemo(() => {
     if (!data) {
       return []
@@ -46,5 +53,7 @@ export function useFilteredSortedBalances() {
     setSortField,
     sortOrder,
     setSortOrder,
+    handleSort,
+    createSortHandler,
   }
 }
