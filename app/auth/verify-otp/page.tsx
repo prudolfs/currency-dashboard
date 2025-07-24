@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useRef } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { Button, Card, CardBody, CardHeader } from '@heroui/react'
 
@@ -11,12 +11,10 @@ export default function VerifyOTPPage() {
   const [error, setError] = useState('')
   const [isVerifying, setIsVerifying] = useState(false)
   const router = useRouter()
-  const searchParams = useSearchParams()
   const { data: session, update } = useSession()
 
   const primaryColor =
     session?.user?.userType === 'partner' ? '#119DA4' : '#2AFC98'
-  const callbackUrl = searchParams.get('callbackUrl') || '/dashboard'
 
   const handleChange = (index: number, value: string) => {
     if (value.length > 1) return
@@ -83,7 +81,7 @@ export default function VerifyOTPPage() {
 
       await update({ twoFactorVerified: true })
 
-      router.push(callbackUrl)
+      router.push('/dashboard')
     } catch {
       setError('An error occurred during verification')
       setIsVerifying(false)
@@ -111,7 +109,9 @@ export default function VerifyOTPPage() {
               {otp.map((digit, index) => (
                 <input
                   key={index}
-                  ref={(el) => (inputRefs.current[index] = el)}
+                  ref={(el) => {
+                    inputRefs.current[index] = el
+                  }}
                   aria-label={`OTP digit ${index + 1}`}
                   className="border-default-200 focus:border-primary h-12 w-12 rounded-lg border-2 text-center text-lg font-bold transition-colors focus:outline-none"
                   inputMode="numeric"

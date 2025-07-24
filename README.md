@@ -50,7 +50,7 @@ A modern Next.js app that displays balance data per currency, featuring search, 
 
 ## 👀 Preview App
 
-https://currency-dashboard-5412kptwr-rudolfs-pukitis-projects.vercel.app
+https://currency-dashboard-eight.vercel.app
 
 ## 🚀 Getting Started
 
