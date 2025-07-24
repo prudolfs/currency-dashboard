@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { useSession } from 'next-auth/react'
 import {
   Card,
   CardBody,
@@ -19,16 +18,14 @@ import {
 } from '@heroui/react'
 
 import { useEnrichedCurrencyData } from '@/lib/api/useEnrichedCurrencyData'
+import { useUserSession } from '@/lib/hooks/useUserSession'
 import ArrowLeftIcon from '@/components/icons/arrow-left'
 import ArrowTrendingUpIcon from '@/components/icons/arrow-trending-up'
 
 export default function BalanceDetailPage() {
   const { id } = useParams<{ id: string }>()
   const { data, isLoading, error } = useEnrichedCurrencyData()
-  const { data: session } = useSession()
-
-  const primaryColor =
-    session?.user?.userType === 'partner' ? '#119DA4' : '#2AFC98'
+  const { primaryColor } = useUserSession()
 
   if (isLoading) {
     return (
@@ -66,6 +63,23 @@ export default function BalanceDetailPage() {
       </div>
     )
   }
+
+  const averageBalance = (
+    parseFloat(currencyData.total) / currencyData.balances.length
+  ).toFixed(2)
+  const enrichedBalances = currencyData.balances
+    .sort((a, b) => parseFloat(b.amount) - parseFloat(a.amount))
+    .map((balance) => {
+      const percentage = (
+        (parseFloat(balance.amount) / parseFloat(currencyData.total)) *
+        100
+      ).toFixed(1)
+
+      return {
+        ...balance,
+        percentage,
+      }
+    })
 
   return (
     <div className="p-4">
@@ -142,11 +156,7 @@ export default function BalanceDetailPage() {
                   Average Balance
                 </span>
               </div>
-              <p className="text-2xl font-bold">
-                {(
-                  parseFloat(currencyData.total) / currencyData.balances.length
-                ).toFixed(2)}
-              </p>
+              <p className="text-2xl font-bold">{averageBalance}</p>
             </CardBody>
           </Card>
         </div>
@@ -169,40 +179,30 @@ export default function BalanceDetailPage() {
                 <TableColumn align="end">PERCENTAGE</TableColumn>
               </TableHeader>
               <TableBody>
-                {currencyData.balances
-                  .sort((a, b) => parseFloat(b.amount) - parseFloat(a.amount))
-                  .map((balance) => {
-                    const percentage = (
-                      (parseFloat(balance.amount) /
-                        parseFloat(currencyData.total)) *
-                      100
-                    ).toFixed(1)
-
-                    return (
-                      <TableRow key={balance.id}>
-                        <TableCell>
-                          <span className="font-mono">#{balance.id}</span>
-                        </TableCell>
-                        <TableCell>
-                          <span className="font-semibold">
-                            {balance.amount}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <Chip
-                            size="sm"
-                            style={{
-                              backgroundColor: `${primaryColor}20`,
-                              color: primaryColor,
-                            }}
-                            variant="flat"
-                          >
-                            {percentage}%
-                          </Chip>
-                        </TableCell>
-                      </TableRow>
-                    )
-                  })}
+                {enrichedBalances.map((balance) => {
+                  return (
+                    <TableRow key={balance.id}>
+                      <TableCell>
+                        <span className="font-mono">#{balance.id}</span>
+                      </TableCell>
+                      <TableCell>
+                        <span className="font-semibold">{balance.amount}</span>
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          size="sm"
+                          style={{
+                            backgroundColor: `${primaryColor}20`,
+                            color: primaryColor,
+                          }}
+                          variant="flat"
+                        >
+                          {balance.percentage}%
+                        </Chip>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
               </TableBody>
             </Table>
           </CardBody>
@@ -213,37 +213,30 @@ export default function BalanceDetailPage() {
               <h2 className="text-lg font-semibold">Individual Balances</h2>
             </CardHeader>
           </Card>
-          {currencyData.balances
-            .sort((a, b) => parseFloat(b.amount) - parseFloat(a.amount))
-            .map((balance) => {
-              const percentage = (
-                (parseFloat(balance.amount) / parseFloat(currencyData.total)) *
-                100
-              ).toFixed(1)
-
-              return (
-                <Card key={balance.id} className="shadow-lg">
-                  <CardBody className="p-4">
-                    <div className="mb-2 flex items-center justify-between">
-                      <span className="text-small text-default-500 font-mono">
-                        Balance #{balance.id}
-                      </span>
-                      <Chip
-                        size="sm"
-                        style={{
-                          backgroundColor: `${primaryColor}20`,
-                          color: primaryColor,
-                        }}
-                        variant="flat"
-                      >
-                        {percentage}%
-                      </Chip>
-                    </div>
-                    <p className="text-xl font-bold">{balance.amount}</p>
-                  </CardBody>
-                </Card>
-              )
-            })}
+          {enrichedBalances.map((balance) => {
+            return (
+              <Card key={balance.id} className="shadow-lg">
+                <CardBody className="p-4">
+                  <div className="mb-2 flex items-center justify-between">
+                    <span className="text-small text-default-500 font-mono">
+                      Balance #{balance.id}
+                    </span>
+                    <Chip
+                      size="sm"
+                      style={{
+                        backgroundColor: `${primaryColor}20`,
+                        color: primaryColor,
+                      }}
+                      variant="flat"
+                    >
+                      {balance.percentage}%
+                    </Chip>
+                  </div>
+                  <p className="text-xl font-bold">{balance.amount}</p>
+                </CardBody>
+              </Card>
+            )
+          })}
         </div>
       </div>
     </div>

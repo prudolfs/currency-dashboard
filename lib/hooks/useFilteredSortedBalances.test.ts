@@ -17,9 +17,7 @@ const mockData: EnrichedBalanceGroup[] = [
     currency_id: 'eth',
     code: 'ETH',
     symbol: 'Ξ',
-    balances: [
-      { id: '3', amount: '5', currency_id: 2 },
-    ],
+    balances: [{ id: '3', amount: '5', currency_id: 2 }],
     total: '5.0',
   },
   {
@@ -46,7 +44,9 @@ jest.mock('@/lib/api/useEnrichedCurrencyData', () => ({
 describe('useFilteredSortedBalances', () => {
   it('returns sorted data by total desc by default', () => {
     const { result } = renderHook(() => useFilteredSortedBalances())
-    expect(result.current.data.map((g: EnrichedBalanceGroup) => g.code)).toEqual(['ETH', 'BTC', 'USDT'])
+    expect(
+      result.current.data.map((g: EnrichedBalanceGroup) => g.code),
+    ).toEqual(['ETH', 'BTC', 'USDT'])
   })
 
   it('filters by search', () => {
@@ -54,7 +54,9 @@ describe('useFilteredSortedBalances', () => {
     act(() => {
       result.current.setSearch('bt')
     })
-    expect(result.current.data.map((g: EnrichedBalanceGroup) => g.code)).toEqual(['BTC'])
+    expect(
+      result.current.data.map((g: EnrichedBalanceGroup) => g.code),
+    ).toEqual(['BTC'])
   })
 
   it('sorts by count asc', () => {
@@ -63,11 +65,15 @@ describe('useFilteredSortedBalances', () => {
       result.current.setSortField('count')
       result.current.setSortOrder('asc')
     })
-    expect(result.current.data.map((g: EnrichedBalanceGroup) => g.code)).toEqual(['ETH', 'BTC', 'USDT'])
+    expect(
+      result.current.data.map((g: EnrichedBalanceGroup) => g.code),
+    ).toEqual(['ETH', 'BTC', 'USDT'])
   })
 
   it('returns loading and error states', () => {
-    const { useEnrichedCurrencyData } = require('@/lib/api/useEnrichedCurrencyData')
+    const {
+      useEnrichedCurrencyData,
+    } = require('@/lib/api/useEnrichedCurrencyData')
     useEnrichedCurrencyData.mockReturnValueOnce({
       data: null,
       isLoading: true,
@@ -78,4 +84,4 @@ describe('useFilteredSortedBalances', () => {
     expect(result.current.error).toBe('error')
     expect(result.current.data).toEqual([])
   })
-}) 
+})

@@ -33,7 +33,6 @@ This project is intentionally kept lean and modular, favoring clarity and mainta
 
 This setup allows for future enhancements (pagination, SSR, real API integration) without major refactoring.
 
-
 ## 📁 File Structure
 
 ```

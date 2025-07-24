@@ -2,8 +2,8 @@
 
 import React, { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { useSession } from 'next-auth/react'
 import { Button, Card, CardBody, CardHeader } from '@heroui/react'
+import { useUserSession } from '@/lib/hooks/useUserSession'
 
 export default function VerifyOTPPage() {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
@@ -11,10 +11,7 @@ export default function VerifyOTPPage() {
   const [error, setError] = useState('')
   const [isVerifying, setIsVerifying] = useState(false)
   const router = useRouter()
-  const { data: session, update } = useSession()
-
-  const primaryColor =
-    session?.user?.userType === 'partner' ? '#119DA4' : '#2AFC98'
+  const { data: session, primaryColor, update } = useUserSession()
 
   const handleChange = (index: number, value: string) => {
     if (value.length > 1) return

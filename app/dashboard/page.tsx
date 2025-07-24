@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import { useSession } from 'next-auth/react'
 import {
   Card,
   CardBody,
@@ -18,6 +17,7 @@ import {
 } from '@heroui/react'
 
 import { useFilteredSortedBalances } from '@/lib/hooks/useFilteredSortedBalances'
+import { useUserSession } from '@/lib/hooks/useUserSession'
 import ChevronUpDownIcon from '@/components/icons/chevron-up-down'
 import EyeIcon from '@/components/icons/eye'
 import SearchIcon from '@/components/icons/search'
@@ -34,10 +34,7 @@ export default function DashboardPage() {
     sortOrder,
     setSortOrder,
   } = useFilteredSortedBalances()
-  const { data: session } = useSession()
-
-  const primaryColor =
-    session?.user?.userType === 'partner' ? '#119DA4' : '#2AFC98'
+  const { data: session, primaryColor } = useUserSession()
 
   if (isLoading) {
     return (
@@ -68,7 +65,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="from-background to-default-50 min-h-screen bg-gradient-to-br p-4">
+    <div className="min-h-screen p-4">
       <div className="mx-auto max-w-7xl space-y-6">
         <Card className="shadow-lg">
           <CardBody className="flex flex-row items-center justify-between p-6">
@@ -90,14 +87,6 @@ export default function DashboardPage() {
               >
                 {data.length} Currencies
               </Chip>
-              <Button
-                variant="light"
-                // onPress={handleLogout}
-                // startContent={<LogOut className="w-4 h-4" />}
-                className="text-danger"
-              >
-                Logout
-              </Button>
             </div>
           </CardBody>
         </Card>
@@ -176,7 +165,10 @@ export default function DashboardPage() {
                       aria-label="Sort by total balance"
                       size="sm"
                       variant="light"
-                      onPress={() => setSortField('total')}
+                      onPress={() => {
+                        setSortField('total')
+                        setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+                      }}
                     >
                       {getSortIcon('total')}
                     </Button>
@@ -189,10 +181,13 @@ export default function DashboardPage() {
                       isIconOnly
                       variant="light"
                       size="sm"
-                      // onPress={() => toggleSort('balanceCount')}
+                      onPress={() => {
+                        setSortField('count')
+                        setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+                      }}
                       aria-label="Sort by balance count"
                     >
-                      {/* {getSortIcon('balanceCount')} */}
+                      {getSortIcon('count')}
                     </Button>
                   </div>
                 </TableColumn>

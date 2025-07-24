@@ -9,4 +9,4 @@ module.exports = {
     '^.+\\.(ts|tsx)$': 'ts-jest',
   },
   testPathIgnorePatterns: ['/node_modules/', '/.next/'],
-}; 
+}
