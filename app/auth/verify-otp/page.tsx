@@ -1,18 +1,63 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
+import { Button, Card, CardBody, CardHeader } from '@heroui/react'
 
 export default function VerifyOTPPage() {
-  const [code, setCode] = useState('')
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([])
+  const [otp, setOtp] = useState(['', '', '', '', '', ''])
   const [error, setError] = useState('')
   const [isVerifying, setIsVerifying] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
   const { data: session, update } = useSession()
 
+  const primaryColor =
+    session?.user?.userType === 'partner' ? '#119DA4' : '#2AFC98'
   const callbackUrl = searchParams.get('callbackUrl') || '/dashboard'
+
+  const handleChange = (index: number, value: string) => {
+    if (value.length > 1) return
+
+    const newOtp = [...otp]
+
+    newOtp[index] = value
+    setOtp(newOtp)
+    setError('')
+
+    if (value && index < 5) {
+      inputRefs.current[index + 1]?.focus()
+    }
+  }
+
+  const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === 'Backspace' && !otp[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus()
+    }
+  }
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    e.preventDefault()
+    const pastedData = e.clipboardData
+      .getData('text')
+      .replace(/\D/g, '')
+      .slice(0, 6)
+    const newOtp = [...otp]
+
+    for (let i = 0; i < pastedData.length; i++) {
+      newOtp[i] = pastedData[i]
+    }
+
+    setOtp(newOtp)
+    setError('')
+
+    const nextEmptyIndex = newOtp.findIndex((digit) => !digit)
+    const focusIndex = nextEmptyIndex === -1 ? 5 : nextEmptyIndex
+
+    inputRefs.current[focusIndex]?.focus()
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -24,7 +69,7 @@ export default function VerifyOTPPage() {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code }),
+        body: JSON.stringify({ code: otp.join('') }),
       })
 
       const data = await response.json()
@@ -32,13 +77,14 @@ export default function VerifyOTPPage() {
       if (!response.ok) {
         setError(data.error || 'Verification failed')
         setIsVerifying(false)
+
         return
       }
 
       await update({ twoFactorVerified: true })
 
       router.push(callbackUrl)
-    } catch (error) {
+    } catch {
       setError('An error occurred during verification')
       setIsVerifying(false)
     }
@@ -46,60 +92,69 @@ export default function VerifyOTPPage() {
 
   if (session && !session.requiresTwoFactor) {
     router.push('/dashboard')
+
     return null
   }
 
   return (
-    <div className="container mx-auto max-w-md p-6">
-      <div className="w-full max-w-md space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-bold tracking-tight">
-            OTP Authentication
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+    <div className="flex justify-center p-4">
+      <Card className="w-full max-w-md shadow-lg">
+        <CardHeader className="flex flex-col items-center gap-1 pb-6">
+          <h1 className="text-2xl font-bold">OTP Authentication</h1>
+          <p className="text-small text-default-500 text-center">
             Please enter the verification code from your authenticator app
           </p>
-        </div>
-
-        {error && (
-          <div className="rounded-md bg-red-50 p-4">
-            <div className="flex">
-              <div className="text-sm text-red-700">{error}</div>
+        </CardHeader>
+        <CardBody className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <div className="flex justify-center gap-2" onPaste={handlePaste}>
+              {otp.map((digit, index) => (
+                <input
+                  key={index}
+                  ref={(el) => (inputRefs.current[index] = el)}
+                  aria-label={`OTP digit ${index + 1}`}
+                  className="border-default-200 focus:border-primary h-12 w-12 rounded-lg border-2 text-center text-lg font-bold transition-colors focus:outline-none"
+                  inputMode="numeric"
+                  maxLength={1}
+                  style={
+                    {
+                      borderColor: digit ? primaryColor : undefined,
+                      '--tw-ring-color': primaryColor,
+                    } as React.CSSProperties
+                  }
+                  type="text"
+                  value={digit}
+                  onChange={(e) => handleChange(index, e.target.value)}
+                  onKeyDown={(e) => handleKeyDown(index, e)}
+                />
+              ))}
             </div>
-          </div>
-        )}
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div>
-            <label htmlFor="otp" className="sr-only">
-              Verification Code
-            </label>
-            <input
-              id="otp"
-              name="otp"
-              type="text"
-              autoComplete="one-time-code"
-              required
-              className="relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none sm:text-sm"
-              placeholder="Enter 6-digit code"
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              maxLength={6}
-              pattern="[0-9]{6}"
-            />
-          </div>
+            {error && (
+              <div
+                aria-live="polite"
+                className="text-danger bg-danger-50 border-danger-200 rounded-lg border p-3 text-center text-sm"
+                role="alert"
+              >
+                {error}
+              </div>
+            )}
 
-          <div>
-            <button
+            <Button
+              className="w-full font-semibold"
+              isDisabled={isVerifying}
+              isLoading={isVerifying}
+              style={{
+                backgroundColor: primaryColor,
+                color: 'white',
+              }}
               type="submit"
-              disabled={isVerifying}
-              className="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none disabled:opacity-70"
             >
               {isVerifying ? 'Verifying...' : 'Verify Code'}
-            </button>
-          </div>
-        </form>
-      </div>
+            </Button>
+          </form>
+        </CardBody>
+      </Card>
     </div>
   )
 }

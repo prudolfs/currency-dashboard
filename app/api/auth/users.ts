@@ -24,5 +24,6 @@ export function validateOtp(
   code: string,
 ): boolean {
   const user = users[userType]
+
   return user?.otp === code
 }

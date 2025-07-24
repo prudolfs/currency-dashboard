@@ -79,7 +79,7 @@ NEXTAUTH_URL=http://localhost:3000
 Uses [MockAPI.io](https://mockapi.io/) to fetch:
 
 - `/currencies` → `id`, `code`, `symbol`
-- `/balances`   → `id`, `amount`, `currency_id`
+- `/balances` → `id`, `amount`, `currency_id`
 
 Data is merged client-side into grouped currency records.
 

@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getToken } from 'next-auth/jwt'
 import { encode } from 'next-auth/jwt'
+
 import { users, validateOtp } from '../users'
 
 export async function POST(req: NextRequest) {
-  console.log('verify-opt/route.ts')
   try {
     const { code } = await req.json()
 
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
     })
 
     return response
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: 'An error occurred during verification' },
       { status: 500 },

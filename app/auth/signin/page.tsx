@@ -2,13 +2,28 @@
 
 import { useState } from 'react'
 import { signIn, useSession } from 'next-auth/react'
+import {
+  Button,
+  Input,
+  RadioGroup,
+  Radio,
+  Card,
+  CardBody,
+  CardHeader,
+} from '@heroui/react'
 import { useRouter } from 'next/navigation'
+
+import EyeIcon from '@/components/icons/eye'
+import EyeOffIcon from '@/components/icons/eye-off'
+import MailIcon from '@/components/icons/mail'
+import LockIcon from '@/components/icons/lock'
 
 export default function SignIn() {
   const { data: session } = useSession()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [userType, setUserType] = useState('member')
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
@@ -30,6 +45,7 @@ export default function SignIn() {
 
       if (result?.error) {
         setError(result.error)
+
         return
       }
 
@@ -39,81 +55,109 @@ export default function SignIn() {
       } else {
         router.push('/dashboard')
       }
-    } catch (error) {
+    } catch {
       setError('An error occurred during sign in')
       setIsSubmitting(false)
     }
   }
 
   return (
-    <div className="container mx-auto max-w-md p-6">
-      <h1 className="mb-4 text-2xl font-bold">Sign In</h1>
+    <div className="flex justify-center p-4">
+      <Card className="w-full max-w-md shadow-lg">
+        <CardHeader className="flex flex-col items-center gap-1 pb-6">
+          <h1 className="text-2xl font-bold">Sign In</h1>
+          <p className="text-small text-default-500">
+            Access your currency dashboard
+          </p>
+        </CardHeader>
+        <CardBody className="space-y-6">
+          <form className="space-y-4" onSubmit={handleSubmit}>
+            <Input
+              isRequired
+              aria-label="Email address"
+              label="Email"
+              startContent={<MailIcon className="text-default-400 h-4 w-4" />}
+              type="email"
+              value={email}
+              onValueChange={setEmail}
+            />
 
-      {error && (
-        <div className="mb-4 rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700">
-          {error}
-        </div>
-      )}
+            <Input
+              isRequired
+              aria-label="Password"
+              endContent={
+                <button
+                  aria-label="toggle password visibility"
+                  className="focus:outline-none"
+                  type="button"
+                  onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+                >
+                  {isPasswordVisible ? (
+                    <EyeOffIcon className="text-default-400 h-4 w-4" />
+                  ) : (
+                    <EyeIcon className="text-default-400 h-4 w-4" />
+                  )}
+                </button>
+              }
+              label="Password"
+              startContent={<LockIcon className="text-default-400 h-4 w-4" />}
+              type={isPasswordVisible ? 'text' : 'password'}
+              value={password}
+              onValueChange={setPassword}
+            />
 
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label className="mb-2 block">Email</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded border p-2"
-            required
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="mb-2 block">Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded border p-2"
-            required
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="mb-2 block">User Type</label>
-          <div className="flex gap-4">
-            <label className="flex items-center">
-              <input
-                type="radio"
-                name="userType"
+            <RadioGroup
+              className="mt-4"
+              label="User Type"
+              orientation="horizontal"
+              value={userType}
+              onValueChange={(value) => setUserType(value)}
+            >
+              <Radio
+                classNames={{
+                  control:
+                    'data-[selected=true]:bg-[#2AFC98] data-[selected=true]:border-[#2AFC98]',
+                }}
                 value="member"
-                checked={userType === 'member'}
-                onChange={() => setUserType('member')}
-                className="mr-2"
-              />
-              Member
-            </label>
-            <label className="flex items-center">
-              <input
-                type="radio"
-                name="userType"
+              >
+                Member
+              </Radio>
+              <Radio
+                classNames={{
+                  control:
+                    'data-[selected=true]:bg-[#119DA4] data-[selected=true]:border-[#119DA4]',
+                }}
                 value="partner"
-                checked={userType === 'partner'}
-                onChange={() => setUserType('partner')}
-                className="mr-2"
-              />
-              Partner
-            </label>
-          </div>
-        </div>
+              >
+                Partner
+              </Radio>
+            </RadioGroup>
 
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="w-full rounded bg-blue-500 p-2 text-white hover:bg-blue-600"
-        >
-          Sign In
-        </button>
-      </form>
+            {error && (
+              <div
+                aria-live="polite"
+                className="text-danger bg-danger-50 border-danger-200 rounded-lg border p-3 text-sm"
+                role="alert"
+              >
+                {error}
+              </div>
+            )}
+
+            <Button
+              className="w-full font-semibold"
+              isDisabled={isSubmitting}
+              isLoading={isSubmitting}
+              style={{
+                backgroundColor: userType === 'partner' ? '#119DA4' : '#2AFC98',
+                color: 'white',
+              }}
+              type="submit"
+            >
+              {isSubmitting ? 'Signing in...' : 'Sign In'}
+            </Button>
+          </form>
+        </CardBody>
+      </Card>
     </div>
   )
 }

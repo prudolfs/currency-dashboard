@@ -1,5 +1,6 @@
 import NextAuth from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
+
 import { users } from '../users'
 
 export const authOptions = {
@@ -74,6 +75,7 @@ export const authOptions = {
         token.userType = user.userType
         token.requiresTwoFactor = user.requiresTwoFactor
       }
+
       return token
     },
     async session({ session, token }: { session: any; token: any }) {
@@ -95,4 +97,5 @@ export const authOptions = {
 }
 
 const handler = NextAuth(authOptions)
+
 export { handler as GET, handler as POST }
