@@ -17,6 +17,23 @@ A modern Next.js app that displays balance data per currency, featuring search, 
 
 ---
 
+---
+
+## 🏗️ Architecture & Decisions
+
+This project is intentionally kept lean and modular, favoring clarity and maintainability:
+
+- 🧩 **React Query** is used for remote data fetching and caching. It covers most of the state needs via hooks like `useFilteredSortedBalances`.
+- 🚫 **Zustand or other global state libraries** were considered but skipped, as there's no complex cross-page state sharing. All state is local or derived from React Query caches.
+- 📄 **MockAPI endpoints** serve a limited dataset (~100 items), so:
+  - No need for list virtualization
+  - Full client-side filtering and sorting are performant and sufficient
+- 🔐 **Authentication logic** (2FA, session handling) is scoped to the `/auth` routes and API handlers to keep auth concerns isolated.
+- 📂 App uses **feature-based file structure**, e.g. all hooks in `/lib/hooks`, shared types in `/types`, and route-specific logic co-located in `/app`.
+
+This setup allows for future enhancements (pagination, SSR, real API integration) without major refactoring.
+
+
 ## 📁 File Structure
 
 ```
@@ -72,7 +89,7 @@ NEXTAUTH_URL=http://localhost:3000
 
 ## 🔐 Authentication Flow
 
-1. `/auth/signin` – Sign in using email or credentials
+1. `/auth/signin` – Sign in using credentials
 2. `/auth/verify-otp` – User enters 2FA code (via `/api/verify-otp`)
 3. Session handled by `next-auth` via `/api/auth/[...nextauth]`
 
